@@ -65,6 +65,14 @@ func registerHandler(c *gin.Context, db *gorm.DB) {
         return
     }
 
+    // Check if username already exists BEFORE starting transaction
+	var existingUser User
+	if err := db.Where("username = ?", user.Username).First(&existingUser).Error; err == nil {
+		// Username already exists
+		c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
+		return
+	}
+
     // Hash the password
     hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
     if err != nil {
@@ -73,13 +81,22 @@ func registerHandler(c *gin.Context, db *gorm.DB) {
     }
     user.Password = string(hashedPassword)
 
-    // Create the user in the database
-    if err := db.Create(&user).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+    // Begin transaction
+	tx := db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 
-    c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
+	if err := tx.Create(&user).Error; err != nil {
+		tx.Rollback() // Rollback on error
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	tx.Commit() // Commit transaction if successful
+	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
 }
 
 // Handler for user login
@@ -119,3 +136,4 @@ func loginHandler(c *gin.Context, db *gorm.DB) {
 
     c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
+
