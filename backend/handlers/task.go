@@ -1,15 +1,11 @@
 package handlers
 
 import (
-	//"net/http"
-	//"strconv"
 
 	"github.com/gin-gonic/gin"
 
-	//"github.com/joho/godotenv" // Add this line
     "gorm.io/gorm"
 
-	//"todo-list-go/backend/models" // Import models package
 )
 
 // CreateTask handler for creating a new task

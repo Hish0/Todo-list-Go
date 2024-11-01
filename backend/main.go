@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-	//"net/http"
-	//"os"
 
 	"github.com/gin-gonic/gin"
     "github.com/joho/godotenv"
@@ -24,7 +22,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Database connection failed:", err)
 	}
-	//defer db.Close()
 
 	// Automatically migrate the User schema
 	if err := db.AutoMigrate(&models.User{}); err != nil {
