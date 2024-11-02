@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
@@ -31,13 +33,15 @@ func main() {
 	// Setup Gin router
 	router := gin.Default()
 
-	// // Register API routes
-	// router.POST("/register", func(c *gin.Context) {
-	// 	handlers.Register(c, db)
-	// })
-	// router.POST("/login", func(c *gin.Context) {
-	// 	handlers.Login(c, db)
-	// })
+	// Enable CORS to let frontend comunicate with backend
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // Allow requests from your React app
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Setup routes using the routes package
 	routes.SetupRoutes(router, db)
