@@ -1,9 +1,10 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"todo-list-go/backend/handlers"
-	"todo-list-go/backend/models"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 // SetupRoutes configures the Gin router with all API routes
