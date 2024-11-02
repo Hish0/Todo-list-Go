@@ -4,11 +4,11 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-    "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 
-	"todo-list-go/backend/handlers"
 	"todo-list-go/backend/database" // Import database package
-    "todo-list-go/backend/models"
+	"todo-list-go/backend/models"
+	"todo-list-go/backend/routes"
 )
 
 func main() {
@@ -24,22 +24,24 @@ func main() {
 	}
 
 	// Automatically migrate the User schema
-	if err := db.AutoMigrate(&models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Task{}); err != nil {
 		log.Fatal("Failed to migrate database schema:", err)
 	}
 
 	// Setup Gin router
 	router := gin.Default()
 
-	// Register API routes
-	router.POST("/register", func(c *gin.Context) {
-		handlers.Register(c, db)
-	})
-	router.POST("/login", func(c *gin.Context) {
-		handlers.Login(c, db)
-	})
+	// // Register API routes
+	// router.POST("/register", func(c *gin.Context) {
+	// 	handlers.Register(c, db)
+	// })
+	// router.POST("/login", func(c *gin.Context) {
+	// 	handlers.Login(c, db)
+	// })
+
+	// Setup routes using the routes package
+	routes.SetupRoutes(router, db)
 
 	// Run the Gin server
 	router.Run(":8080")
 }
-

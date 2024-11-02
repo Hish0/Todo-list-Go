@@ -1,4 +1,5 @@
 package models
+
 import "time"
 
 // Task struct defines the structure of a task in the database

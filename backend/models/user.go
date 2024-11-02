@@ -1,4 +1,5 @@
 package models
+
 import "time"
 
 // User struct defines the structure of a user in the database
