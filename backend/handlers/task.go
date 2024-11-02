@@ -121,12 +121,88 @@ func UpdateTask(c *gin.Context, db *gorm.DB) {
 
 // DeleteTask handler for deleting a task
 func DeleteTask(c *gin.Context, db *gorm.DB) {
-	// ... (Implementation for deleting a task will go here) ...
+	// Retrieve the user ID from the JWT token
+	userID, err := GetUserIDFromToken(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing token"})
+		return
+	}
+
+	// Retrieve the task ID from the URL parameter
+	taskID := c.Param("id")
+	if taskID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Task ID is required"})
+		return
+	}
+
+	// Parse the task ID from the URL parameter
+	var taskIDInt uint
+	if _, err := fmt.Sscan(taskID, &taskIDInt); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+		return
+	}
+
+	// Retrieve the task from the database
+	var task models.Task
+	if err := db.First(&task, taskIDInt).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+		return
+	}
+
+	// Check if the user owns the task
+	if task.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to delete this task"})
+		return
+	}
+
+	// Delete the task from the database
+	if err := db.Delete(&task).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete task"})
+		return
+	}
+
+	// Return a success message
+	c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully"})
 }
 
 // GetTaskByID handler for retrieving a task by ID
 func GetTaskByID(c *gin.Context, db *gorm.DB) {
-	// ... (Implementation for retrieving a task by ID will go here) ...
+	// Retrieve the user ID from the JWT token
+	userID, err := GetUserIDFromToken(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or missing token"})
+		return
+	}
+
+	// Retrieve the task ID from the URL parameter
+	taskID := c.Param("id")
+	if taskID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Task ID is required"})
+		return
+	}
+
+	// Parse the task ID from the URL parameter
+	var taskIDInt uint
+	if _, err := fmt.Sscan(taskID, &taskIDInt); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid task ID"})
+		return
+	}
+
+	// Retrieve the task from the database
+	var task models.Task
+	if err := db.First(&task, taskIDInt).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+		return
+	}
+
+	// Check if the user owns the task
+	if task.UserID != userID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You do not have permission to view this task"})
+		return
+	}
+
+	// Return the task
+	c.JSON(http.StatusOK, gin.H{"task": task})
 }
 
 // Helper function to retrieve the user ID from the JWT token
