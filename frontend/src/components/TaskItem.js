@@ -1,13 +1,24 @@
 import React from 'react';
-import axios from 'axios'; // Import axios
+import axios from 'axios';
 
-const TaskItem = ({ key,task, onTaskToggle, onTaskDelete }) => {
+const TaskItem = ({ task, setTasks }) => {
   const handleToggle = async () => {
     try {
-      await axios.put(`http://localhost:8080/tasks/${task.id}`, {
-        completed: !task.completed
+      // Send the PUT request to toggle the completed status
+      await axios.put(`http://localhost:8080/tasks/${task.ID}`, {
+        completed: !task.Completed
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` 
+        }
       });
-      onTaskToggle(task.id);
+      
+      // Update the task in the state by toggling the completed status
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.ID === task.ID ? { ...t, Completed: !t.Completed } : t
+        )
+      );
     } catch (error) {
       console.error("Error toggling task:", error);
     }
@@ -15,8 +26,15 @@ const TaskItem = ({ key,task, onTaskToggle, onTaskDelete }) => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:8080/tasks/${task.id}`);
-      onTaskDelete(task.id);
+      // Send the DELETE request to remove the task
+      await axios.delete(`http://localhost:8080/tasks/${task.ID}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}` 
+        }
+      });
+      
+      // Update the state to remove the task
+      setTasks((prevTasks) => prevTasks.filter((t) => t.ID !== task.ID));
     } catch (error) {
       console.error("Error deleting task:", error);
     }
@@ -26,14 +44,18 @@ const TaskItem = ({ key,task, onTaskToggle, onTaskDelete }) => {
     <li className="task-item">
       <input
         type="checkbox"
-        checked={task.completed}
+        checked={task.Completed}
         onChange={handleToggle}
       />
-      <span className={task.completed ? 'completed' : ''}>{task.title}</span>
-      <button onClick={handleDelete}>Delete</button>
+      <div>
+        <span>{task.Completed ? '✔️' : '❌'}</span>
+        <h3>{task.ID}</h3>
+        <p>{task.Title}</p> {/* Display the title here */}
+        <p>{task.Description}</p> {/* Display the description here */}
+        <button onClick={handleDelete}>Delete</button>
+      </div>
     </li>
   );
 };
 
 export default TaskItem;
-

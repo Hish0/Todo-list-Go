@@ -1,15 +1,15 @@
 package handlers
 
 import (
-	"os"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 
 	"todo-list-go/backend/models" // Import models package
 )
@@ -83,7 +83,7 @@ func Login(c *gin.Context, db *gorm.DB) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  dbUser.ID,
 		"username": dbUser.Username,
-		"exp":      time.Now().Add(time.Hour * 24).Unix(),
+		"exp":      time.Now().Add(time.Hour * 2).Unix(),
 	})
 
 	// Sign the token

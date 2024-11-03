@@ -5,15 +5,56 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import TaskForm from './components/TaskForm';
 import axios from 'axios'; // Import axios
+import { jwtDecode } from 'jwt-decode';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user,setUser] = useState(null);
   const [tasks, setTasks] = useState([]); // State for tasks
+
+  // // Check for token on initial load
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     setIsLoggedIn(true);
+  //     // Optionally fetch user data here if needed
+  //   } else {
+  //     // Redirect to login
+  //     window.location.href = 'http://localhost:8080/auth';
+  //   }
+  // }, []);
+
+  // Check for token on initial load
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const isExpired = decodedToken.exp * 1000 < Date.now(); // Check if token is expired
+        if (!isExpired) {
+          setIsLoggedIn(true);
+          // Optionally fetch user data here if needed
+        } else {
+          // Token is expired, clear it and redirect to login
+          localStorage.removeItem('token');
+          window.location.href = 'http://localhost:3000';
+        }
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        // Handle invalid token
+        localStorage.removeItem('token');
+        window.location.href = 'http://localhost:3000';
+      }
+    } else {
+      // Redirect to login if no token
+      window.location.href = 'http://localhost:3000';
+    }
+  }, []);
 
   // Handle login
   const handleLogin = (userData) => {
-    setUser(userData);
+    // setUser(userData);
     setIsLoggedIn(true);
   };
 
@@ -40,38 +81,20 @@ function App() {
     }
   };
 
-  // Handle task toggling
-  const handleTaskToggle = (taskId) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  // Handle task deletion
-  const handleTaskDelete = (taskId) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-  };
-
-  // Handle task submission
-  const handleTaskSubmit = (newTask) => {
-    setTasks((prevTasks) => [...prevTasks, newTask]);
-  };
-
   useEffect(() => {
     if (isLoggedIn) {
       fetchTasks();
     }
   }, [isLoggedIn]);
 
+
   return (
     <div className="App">
       <h1>Todo List App</h1>
       {isLoggedIn ? (
         <>
-          <TaskForm onTaskSubmit={handleTaskSubmit} /> {/* Add TaskForm */}
-          <TaskList tasks={tasks} onTaskToggle={handleTaskToggle} onTaskDelete={handleTaskDelete} /> 
+          <TaskForm onTaskSubmit={(newTask) => setTasks((prevTasks) => [...prevTasks, newTask])} />
+          <TaskList tasks={tasks} setTasks={setTasks} /> 
           <button onClick={handleLogout}>Logout</button>
         </>
       ) : (

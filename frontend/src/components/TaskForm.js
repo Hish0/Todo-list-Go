@@ -22,6 +22,9 @@ const TaskForm = ({ onTaskSubmit }) => {
         timeout: 10000 // timeout set to 10 seconds
       });
 
+      // // Call the onTaskSubmit callback with the new task to update the tasks in App
+      // onTaskSubmit(response.data.task);
+
       // Reset the form
       setTitle('');
       setDescription('');
