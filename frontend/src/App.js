@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import TaskList from './components/TaskList'; 
+import TaskList from './components/TaskList';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import TaskForm from './components/TaskForm';
 import axios from 'axios'; // Import axios
 
 function App() {
@@ -21,13 +22,13 @@ function App() {
     setUser(null);
     setIsLoggedIn(false);
     // Clear the token from local storage
-    localStorage.removeItem('token'); 
+    localStorage.removeItem('token');
   };
 
   // Fetch tasks
   const fetchTasks = async () => {
     try {
-      const response = await axios.get('/tasks', {
+      const response = await axios.get('http://localhost:8080/tasks/', {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}` // Use token
         }
@@ -41,8 +42,8 @@ function App() {
 
   // Handle task toggling
   const handleTaskToggle = (taskId) => {
-    setTasks((prevTasks) => 
-      prevTasks.map((task) => 
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
         task.id === taskId ? { ...task, completed: !task.completed } : task
       )
     );
@@ -51,6 +52,11 @@ function App() {
   // Handle task deletion
   const handleTaskDelete = (taskId) => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+  };
+
+  // Handle task submission
+  const handleTaskSubmit = (newTask) => {
+    setTasks((prevTasks) => [...prevTasks, newTask]);
   };
 
   useEffect(() => {
@@ -64,7 +70,8 @@ function App() {
       <h1>Todo List App</h1>
       {isLoggedIn ? (
         <>
-          <TaskList tasks={tasks} onTaskToggle={handleTaskToggle} onTaskDelete={handleTaskDelete} /> {/* Pass tasks and handlers */}
+          <TaskForm onTaskSubmit={handleTaskSubmit} /> {/* Add TaskForm */}
+          <TaskList tasks={tasks} onTaskToggle={handleTaskToggle} onTaskDelete={handleTaskDelete} /> 
           <button onClick={handleLogout}>Logout</button>
         </>
       ) : (

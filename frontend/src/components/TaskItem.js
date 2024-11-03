@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios'; // Import axios
 
-const TaskItem = ({ task, onTaskToggle, onTaskDelete }) => {
+const TaskItem = ({ key,task, onTaskToggle, onTaskDelete }) => {
   const handleToggle = async () => {
     try {
       await axios.put(`http://localhost:8080/tasks/${task.id}`, {

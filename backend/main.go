@@ -25,7 +25,7 @@ func main() {
 		log.Fatal("Database connection failed:", err)
 	}
 
-	// Automatically migrate the User schema
+	// Automatically migrate the User and Task schema
 	if err := db.AutoMigrate(&models.User{}, &models.Task{}); err != nil {
 		log.Fatal("Failed to migrate database schema:", err)
 	}
@@ -40,7 +40,7 @@ func main() {
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
+		MaxAge:           24 * time.Hour,
 	}))
 
 	// Setup routes using the routes package

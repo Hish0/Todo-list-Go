@@ -1,0 +1,29 @@
+.App {
+    text-align: center;
+  }
+  
+  .task-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .task-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .task-item span {
+    flex: 1; /* Make the task title occupy the remaining space */
+  }
+  
+  .completed {
+    text-decoration: line-through;
+    color: #999;
+  }
+  
+  
